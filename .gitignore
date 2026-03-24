@@ -68,4 +68,7 @@ Thumbs.db
 
 # SonarQube
 .scannerwork/
-.sonar/
+.sonar/-e 
+# SonarQube reports
+sonar-issues-report-*.md
+sonar-fix-suggestions-*.md
