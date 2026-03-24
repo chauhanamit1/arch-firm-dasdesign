@@ -1,0 +1,71 @@
+{
+  "kind": "collectionType",
+  "collectionName": "project_requests",
+  "info": {
+    "singularName": "project-request",
+    "pluralName": "project-requests",
+    "displayName": "Project Request",
+    "description": "Client project requests and inquiries"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "email": {
+      "type": "email",
+      "required": true
+    },
+    "phone": {
+      "type": "string"
+    },
+    "company": {
+      "type": "string"
+    },
+    "projectType": {
+      "type": "enumeration",
+      "enum": ["residential", "commercial"],
+      "required": true
+    },
+    "serviceId": {
+      "type": "integer",
+      "required": true
+    },
+    "serviceName": {
+      "type": "string",
+      "required": true
+    },
+    "projectDescription": {
+      "type": "text",
+      "required": true
+    },
+    "budget": {
+      "type": "string"
+    },
+    "timeline": {
+      "type": "string"
+    },
+    "selectedMilestones": {
+      "type": "json",
+      "default": []
+    },
+    "status": {
+      "type": "enumeration",
+      "enum": ["new", "contacted", "in-progress", "converted", "declined"],
+      "default": "new"
+    },
+    "notes": {
+      "type": "text"
+    },
+    "attachments": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": ["images", "files", "videos"]
+    }
+  }
+}

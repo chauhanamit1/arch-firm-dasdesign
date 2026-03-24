@@ -3,11 +3,11 @@
 import { useState, useRef } from 'react'
 
 interface FileUploadProps {
-  projectId: string
-  onUploadSuccess?: (file: any) => void
+  readonly projectId: string
+  readonly onUploadSuccess?: (file: any) => void
 }
 
-export default function FileUpload({ projectId, onUploadSuccess }: FileUploadProps) {
+export default function FileUpload({ projectId, onUploadSuccess }: Readonly<FileUploadProps>) {
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)

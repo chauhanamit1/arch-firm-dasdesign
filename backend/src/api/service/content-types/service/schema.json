@@ -24,6 +24,52 @@
     },
     "icon": {
       "type": "string"
+    },
+    "heroImage": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
+    "gallery": {
+      "type": "media",
+      "multiple": true,
+      "required": false,
+      "allowedTypes": ["images"]
+    },
+    "features": {
+      "type": "json",
+      "default": []
+    },
+    "process": {
+      "type": "json",
+      "default": []
+    },
+    "pricing": {
+      "type": "richtext"
+    },
+    "benefits": {
+      "type": "json",
+      "default": []
+    },
+    "timeline": {
+      "type": "string"
+    },
+    "deliverables": {
+      "type": "json",
+      "default": []
+    },
+    "caseStudies": {
+      "type": "json",
+      "default": []
+    },
+    "testimonials": {
+      "type": "json",
+      "default": []
+    },
+    "faqs": {
+      "type": "json",
+      "default": []
     }
   }
 }

@@ -3,11 +3,11 @@
 import { useState } from 'react'
 
 interface PDFViewerProps {
-  url: string
-  title?: string
+  readonly url: string
+  readonly title?: string
 }
 
-export default function PDFViewer({ url, title }: PDFViewerProps) {
+export default function PDFViewer({ url, title }: Readonly<PDFViewerProps>) {
   const [isOpen, setIsOpen] = useState(false)
   const [loading, setLoading] = useState(true)
 
@@ -61,6 +61,14 @@ export default function PDFViewer({ url, title }: PDFViewerProps) {
           <div
             className="absolute inset-0 bg-black bg-opacity-75 transition-opacity"
             onClick={handleClose}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') {
+                handleClose()
+              }
+            }}
+            role="button"
+            tabIndex={0}
+            aria-label="Close PDF viewer"
           />
 
           {/* Modal Content */}

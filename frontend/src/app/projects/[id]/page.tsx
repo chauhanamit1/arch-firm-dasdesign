@@ -307,6 +307,28 @@ export default function ProjectDetail() {
     }
   };
 
+  const getMilestoneBackgroundColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'completed':
+        return 'bg-green-50';
+      case 'in progress':
+        return 'bg-blue-50';
+      default:
+        return 'bg-gray-50';
+    }
+  };
+
+  const getDeliverableStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'completed':
+        return 'bg-green-500';
+      case 'in progress':
+        return 'bg-blue-500';
+      default:
+        return 'bg-gray-300';
+    }
+  };
+
   return (
     <main className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -361,7 +383,7 @@ export default function ProjectDetail() {
           <div className="space-y-6">
             {milestones.map((milestone, index) => (
               <div key={milestone.id} className="bg-white rounded-lg shadow-lg overflow-hidden">
-                <div className={`p-6 ${milestone.status === 'Completed' ? 'bg-green-50' : milestone.status === 'In Progress' ? 'bg-blue-50' : 'bg-gray-50'}`}>
+                <div className={`p-6 ${getMilestoneBackgroundColor(milestone.status)}`}>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
@@ -381,9 +403,9 @@ export default function ProjectDetail() {
                     <h4 className="font-semibold text-gray-800 mb-3">Deliverables:</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       {milestone.deliverables.map((deliverable, idx) => (
-                        <div key={idx} className="flex items-center justify-between bg-white p-3 rounded border">
+                        <div key={`deliverable-${milestone.id}-${idx}`} className="flex items-center justify-between bg-white p-3 rounded border">
                           <div className="flex items-center gap-2">
-                            <span className={`w-2 h-2 rounded-full ${deliverable.status === 'Completed' ? 'bg-green-500' : deliverable.status === 'In Progress' ? 'bg-blue-500' : 'bg-gray-300'}`}></span>
+                            <span className={`w-2 h-2 rounded-full ${getDeliverableStatusColor(deliverable.status)}`}></span>
                             <span className="text-gray-700">{deliverable.name}</span>
                           </div>
                           {deliverable.file && (
@@ -498,7 +520,7 @@ export default function ProjectDetail() {
                   <h4 className="font-semibold text-gray-800 mb-2">Attendees:</h4>
                   <div className="flex flex-wrap gap-2">
                     {meeting.attendees.map((attendee, idx) => (
-                      <span key={idx} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                      <span key={`attendee-${meeting.id}-${idx}`} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
                         {attendee}
                       </span>
                     ))}
@@ -509,7 +531,7 @@ export default function ProjectDetail() {
                   <h4 className="font-semibold text-gray-800 mb-2">Agenda:</h4>
                   <ul className="list-disc list-inside text-gray-600 space-y-1">
                     {meeting.agenda.map((item, idx) => (
-                      <li key={idx}>{item}</li>
+                      <li key={`agenda-${meeting.id}-${idx}`}>{item}</li>
                     ))}
                   </ul>
                 </div>
@@ -523,9 +545,9 @@ export default function ProjectDetail() {
                   <h4 className="font-semibold text-gray-800 mb-2">Action Items:</h4>
                   <div className="space-y-2">
                     {meeting.actionItems.map((item, idx) => (
-                      <div key={idx} className="flex items-center justify-between bg-gray-50 p-3 rounded">
+                      <div key={`action-${meeting.id}-${idx}`} className="flex items-center justify-between bg-gray-50 p-3 rounded">
                         <div className="flex items-center gap-3">
-                          <span className={`w-2 h-2 rounded-full ${item.status === 'Completed' ? 'bg-green-500' : item.status === 'In Progress' ? 'bg-blue-500' : 'bg-gray-300'}`}></span>
+                          <span className={`w-2 h-2 rounded-full ${getDeliverableStatusColor(item.status)}`}></span>
                           <span className="text-gray-700">{item.task}</span>
                         </div>
                         <div className="text-sm text-gray-600">
