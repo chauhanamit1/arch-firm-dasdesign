@@ -1,0 +1,125 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: arch-firm-db
+    environment:
+      POSTGRES_DB: architectural_firm
+      POSTGRES_USER: strapi
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-strapi_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - arch-firm-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U strapi"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Strapi Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: arch-firm-backend
+    environment:
+      DATABASE_CLIENT: postgres
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: architectural_firm
+      DATABASE_USERNAME: strapi
+      DATABASE_PASSWORD: ${DB_PASSWORD:-strapi_password}
+      JWT_SECRET: ${JWT_SECRET:-your-jwt-secret-change-in-production}
+      ADMIN_JWT_SECRET: ${ADMIN_JWT_SECRET:-your-admin-jwt-secret-change-in-production}
+      APP_KEYS: ${APP_KEYS:-your-app-keys-change-in-production}
+      API_TOKEN_SALT: ${API_TOKEN_SALT:-your-api-token-salt-change-in-production}
+      NODE_ENV: production
+      HOST: 0.0.0.0
+      PORT: 1337
+    ports:
+      - "1337:1337"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend/public/uploads:/app/public/uploads
+      - backend_node_modules:/app/node_modules
+    networks:
+      - arch-firm-network
+    restart: unless-stopped
+
+  # Next.js Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:1337}
+    container_name: arch-firm-frontend
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://backend:1337}
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - arch-firm-network
+    restart: unless-stopped
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: arch-firm-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - arch-firm-network
+    restart: unless-stopped
+
+  # SonarQube for Code Quality
+  sonarqube:
+    image: sonarqube:community
+    container_name: arch-firm-sonarqube
+    environment:
+      SONAR_ES_BOOTSTRAP_CHECKS_DISABLE: true
+      SONAR_JDBC_URL: jdbc:postgresql://postgres:5432/sonarqube
+      SONAR_JDBC_USERNAME: strapi
+      SONAR_JDBC_PASSWORD: ${DB_PASSWORD:-strapi_password}
+    ports:
+      - "9000:9000"
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+    networks:
+      - arch-firm-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  backend_node_modules:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
+
+networks:
+  arch-firm-network:
+    driver: bridge
+
+# Made with Bob
