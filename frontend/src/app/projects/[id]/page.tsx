@@ -3,8 +3,19 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { getProject } from '@/lib/api';
 import PDFViewer from '@/components/PDFViewer';
 import FileUpload from '@/components/FileUpload';
+
+// Category-specific image keywords for Unsplash
+const imageKeywords: Record<string, string> = {
+  'Residential': 'modern-luxury-apartment-interior',
+  'Commercial': 'modern-office-building-architecture',
+  'Healthcare': 'modern-hospital-architecture',
+  'Education': 'modern-school-campus-architecture',
+  'Public Space': 'urban-plaza-architecture',
+  'Retail': 'luxury-shopping-mall-interior'
+};
 
 export default function ProjectDetail() {
   const params = useParams();
@@ -14,8 +25,7 @@ export default function ProjectDetail() {
   useEffect(() => {
     async function fetchProject() {
       try {
-        const response = await fetch(`http://localhost:1337/api/projects/${params.id}`);
-        const data = await response.json();
+        const data = await getProject(params.id as string);
         setProject(data.data);
       } catch (error) {
         console.error('Error fetching project:', error);
@@ -49,6 +59,11 @@ export default function ProjectDetail() {
       </div>
     );
   }
+
+  // Get Unsplash image based on category
+  const category = project.category || 'Commercial';
+  const keyword = imageKeywords[category] || imageKeywords['Commercial'];
+  const heroImage = `https://source.unsplash.com/1600x900/?${keyword}`;
 
   // Sample milestones data (will be from API later)
   const milestones = [
@@ -342,21 +357,31 @@ export default function ProjectDetail() {
         </div>
       </div>
 
+      {/* Hero Image */}
+      <div className="relative h-96 overflow-hidden">
+        <img
+          src={heroImage}
+          alt={project.title}
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+      </div>
+
       {/* Project Overview */}
       <section className="py-8 bg-white">
         <div className="container mx-auto px-4">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="bg-gray-50 p-6 rounded-lg">
               <div className="text-sm text-gray-600 mb-1">Client</div>
-              <div className="text-xl font-bold text-gray-800">{project.client}</div>
+              <div className="text-xl font-bold text-gray-800">{project.client || 'N/A'}</div>
             </div>
             <div className="bg-gray-50 p-6 rounded-lg">
-              <div className="text-sm text-gray-600 mb-1">Budget</div>
-              <div className="text-xl font-bold text-blue-600">${(project.budget / 1000).toFixed(0)}K</div>
+              <div className="text-sm text-gray-600 mb-1">Location</div>
+              <div className="text-xl font-bold text-blue-600">{project.location || 'N/A'}</div>
             </div>
             <div className="bg-gray-50 p-6 rounded-lg">
               <div className="text-sm text-gray-600 mb-1">Area</div>
-              <div className="text-xl font-bold text-gray-800">{project.area.toLocaleString()} sq ft</div>
+              <div className="text-xl font-bold text-gray-800">{project.area ? project.area.toLocaleString() + ' sq ft' : 'N/A'}</div>
             </div>
             <div className="bg-gray-50 p-6 rounded-lg">
               <div className="text-sm text-gray-600 mb-1">Status</div>
@@ -370,8 +395,10 @@ export default function ProjectDetail() {
             <p className="text-gray-600">{project.description}</p>
           </div>
           <div className="mt-4 flex gap-4 text-sm text-gray-600">
-            <div>📍 {project.location}</div>
-            <div>📅 {new Date(project.startDate).toLocaleDateString()} - {new Date(project.completionDate).toLocaleDateString()}</div>
+            <div>📍 {project.location || 'Location TBD'}</div>
+            {project.startDate && project.completionDate && (
+              <div>📅 {new Date(project.startDate).toLocaleDateString()} - {new Date(project.completionDate).toLocaleDateString()}</div>
+            )}
           </div>
         </div>
       </section>

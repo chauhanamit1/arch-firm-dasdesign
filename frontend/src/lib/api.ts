@@ -23,6 +23,20 @@ export const getProjects = async () => {
   }
 };
 
+export const getProject = async (id: string) => {
+  try {
+    const response = await api.get(`/projects/${id}`, {
+      params: {
+        populate: '*',
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching project:', error);
+    return { data: null };
+  }
+};
+
 export const getServices = async () => {
   try {
     const response = await api.get('/services', {
