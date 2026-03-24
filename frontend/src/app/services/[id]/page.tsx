@@ -3,7 +3,19 @@ import Image from 'next/image'
 import { notFound } from 'next/navigation'
 import ProjectRequestForm from '@/components/ProjectRequestForm'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1337'
+
+export const dynamic = 'force-dynamic'
+export const dynamicParams = true
+
+// Use backend service name for server-side rendering, localhost for client-side
+const getApiUrl = () => {
+  // Server-side: use Docker service name
+  if (typeof window === 'undefined') {
+    return process.env.API_URL || 'http://backend:1337'
+  }
+  // Client-side: use public URL
+  return process.env.NEXT_PUBLIC_API_URL || 'http://localhost:1337'
+}
 
 interface Feature {
   title: string
@@ -48,15 +60,19 @@ interface Milestone {
 
 async function getService(id: string) {
   try {
-    const res = await fetch(`${API_URL}/api/services/${id}?populate=*`, {
+    const apiUrl = getApiUrl()
+    console.log(`Fetching service from: ${apiUrl}/api/services/${id}`)
+    const res = await fetch(`${apiUrl}/api/services/${id}?populate=*`, {
       cache: 'no-store',
     })
     
     if (!res.ok) {
+      console.error(`Service fetch failed: ${res.status} ${res.statusText}`)
       return null
     }
     
     const data = await res.json()
+    console.log('Service data received:', data.data?.title)
     return data.data
   } catch (error) {
     console.error('Error fetching service:', error)
@@ -66,7 +82,8 @@ async function getService(id: string) {
 
 async function getRelatedProjects(serviceTitle: string) {
   try {
-    const res = await fetch(`${API_URL}/api/projects?populate=*`, {
+    const apiUrl = getApiUrl()
+    const res = await fetch(`${apiUrl}/api/projects?populate=*`, {
       cache: 'no-store',
     })
     
@@ -97,9 +114,10 @@ const sampleMilestones: Milestone[] = [
 export default async function ServiceDetailPage({
   params,
 }: Readonly<{
-  params: { id: string }
+  params: Promise<{ id: string }>
 }>) {
-  const service = await getService(params.id)
+  const { id } = await params
+  const service = await getService(id)
   
   if (!service) {
     notFound()
