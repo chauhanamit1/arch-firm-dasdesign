@@ -7,14 +7,24 @@ import { getProject } from '@/lib/api';
 import PDFViewer from '@/components/PDFViewer';
 import FileUpload from '@/components/FileUpload';
 
-// Category-specific image keywords for Unsplash
-const imageKeywords: Record<string, string> = {
-  'Residential': 'modern-luxury-apartment-interior',
-  'Commercial': 'modern-office-building-architecture',
-  'Healthcare': 'modern-hospital-architecture',
-  'Education': 'modern-school-campus-architecture',
-  'Public Space': 'urban-plaza-architecture',
-  'Retail': 'luxury-shopping-mall-interior'
+// Map project titles to their hero images (local files)
+const projectImages: Record<string, string> = {
+  'Skyline Penthouse': '/images/projects/skyline-penthouse-hero.jpg',
+  'Healing Spaces Medical Center': '/images/projects/healing-spaces-hero.jpg',
+  'Future Academy': '/images/projects/future-academy-hero.jpg',
+  'Metropolitan Square': '/images/projects/metropolitan-square-hero.jpg',
+  'The Promenade': '/images/projects/promenade-hero.jpg',
+  'Tech Innovation Hub': '/images/projects/tech-hub-hero.jpg',
+};
+
+// Category fallback images (local files)
+const categoryImages: Record<string, string> = {
+  'Residential': '/images/categories/residential.jpg',
+  'Commercial': '/images/categories/commercial.jpg',
+  'Healthcare': '/images/categories/healthcare.jpg',
+  'Education': '/images/categories/education.jpg',
+  'Public Space': '/images/categories/commercial.jpg',
+  'Retail': '/images/categories/retail.jpg'
 };
 
 export default function ProjectDetail() {
@@ -25,10 +35,18 @@ export default function ProjectDetail() {
   useEffect(() => {
     async function fetchProject() {
       try {
+        console.log('Fetching project with ID:', params.id);
         const data = await getProject(params.id as string);
-        setProject(data.data);
+        console.log('Project data received:', data);
+        if (data && data.data) {
+          setProject(data.data);
+        } else {
+          console.error('No project data returned');
+          setProject(null);
+        }
       } catch (error) {
         console.error('Error fetching project:', error);
+        setProject(null);
       } finally {
         setLoading(false);
       }
@@ -60,10 +78,10 @@ export default function ProjectDetail() {
     );
   }
 
-  // Get Unsplash image based on category
+  // Get hero image - try project-specific first, then fall back to category
+  const projectTitle = project.title || '';
   const category = project.category || 'Commercial';
-  const keyword = imageKeywords[category] || imageKeywords['Commercial'];
-  const heroImage = `https://source.unsplash.com/1600x900/?${keyword}`;
+  const heroImage = projectImages[projectTitle] || categoryImages[category] || categoryImages['Commercial'];
 
   // Sample milestones data (will be from API later)
   const milestones = [
@@ -630,7 +648,9 @@ export default function ProjectDetail() {
             <div className="flex justify-between items-center">
               <div>
                 <div className="text-sm text-gray-600 mb-1">Total Project Value</div>
-                <div className="text-3xl font-bold text-gray-800">${project.budget.toLocaleString()}</div>
+                <div className="text-3xl font-bold text-gray-800">
+                  {project.budget ? `$${project.budget.toLocaleString()}` : 'N/A'}
+                </div>
               </div>
               <div>
                 <div className="text-sm text-gray-600 mb-1">Invoiced</div>

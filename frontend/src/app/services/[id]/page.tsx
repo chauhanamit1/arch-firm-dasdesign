@@ -125,11 +125,19 @@ export default async function ServiceDetailPage({
 
   const relatedProjects = await getRelatedProjects(service.title)
 
-  // Parse JSON fields with fallbacks
-  const features: Feature[] = service.features || []
-  const process: ProcessStep[] = service.process || []
-  const benefits: Benefit[] = service.benefits || []
-  const deliverables: Deliverable[] = service.deliverables || []
+  // Parse JSON fields with fallbacks - handle both string arrays and object arrays
+  const features: Feature[] = (service.features || []).map((item: any) =>
+    typeof item === 'string' ? { title: item, description: '' } : item
+  )
+  const process: ProcessStep[] = (service.process || []).map((item: any) =>
+    typeof item === 'string' ? { step: item, description: '' } : item
+  )
+  const benefits: Benefit[] = (service.benefits || []).map((item: any) =>
+    typeof item === 'string' ? { title: item, description: '' } : item
+  )
+  const deliverables: Deliverable[] = (service.deliverables || []).map((item: any) =>
+    typeof item === 'string' ? { name: item, description: '' } : item
+  )
   const testimonials: Testimonial[] = service.testimonials || []
   const faqs: FAQ[] = service.faqs || []
 

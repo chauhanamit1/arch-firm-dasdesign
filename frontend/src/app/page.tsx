@@ -115,47 +115,76 @@ export default function Home() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {projects.map((project: any) => (
-                <Link
-                  key={project.id}
-                  href={`/projects/${project.documentId}`}
-                  className="block bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-all hover:scale-105 cursor-pointer"
-                >
-                  <div className="p-6">
-                    <h3 className="text-2xl font-bold mb-2 text-gray-800">
-                      {project.title || 'Untitled Project'}
-                    </h3>
-                    <p className="text-gray-600 mb-4">
-                      <span className="font-semibold">{project.category || 'General'}</span>
-                      {project.location && ` • ${project.location}`}
-                    </p>
-                    <p className="text-gray-700 mb-4">
-                      {project.description?.substring(0, 120)}
-                      {project.description?.length > 120 ? '...' : ''}
-                    </p>
-                    <div className="flex justify-between items-center text-sm border-t pt-4">
-                      <span className="text-gray-500 font-medium">
-                        {project.status || 'Status Unknown'}
-                      </span>
-                      {project.budget && (
-                        <span className="text-blue-600 font-bold text-lg">
-                          ${(project.budget / 1000).toFixed(0)}K
+              {projects.map((project: any) => {
+                // Map project titles to their thumbnail images
+                const imageMap: Record<string, string> = {
+                  'Skyline Penthouse': '/images/projects/skyline-penthouse-thumb.jpg',
+                  'Healing Spaces Medical Center': '/images/projects/healing-spaces-thumb.jpg',
+                  'Future Academy': '/images/projects/future-academy-thumb.jpg',
+                  'Metropolitan Square': '/images/projects/metropolitan-square-thumb.jpg',
+                  'The Promenade': '/images/projects/promenade-thumb.jpg',
+                  'Tech Innovation Hub': '/images/projects/tech-hub-thumb.jpg',
+                };
+                
+                const thumbnailImage = imageMap[project.title] || '/images/categories/commercial.jpg';
+                
+                return (
+                  <Link
+                    key={project.id}
+                    href={`/projects/${project.documentId}`}
+                    className="block bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-all hover:scale-105 cursor-pointer"
+                  >
+                    {/* Project Thumbnail */}
+                    <div className="relative h-48 overflow-hidden">
+                      <img
+                        src={thumbnailImage}
+                        alt={project.title || 'Project'}
+                        className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
+                      />
+                      <div className="absolute top-4 right-4 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-semibold">
+                        {project.category || 'General'}
+                      </div>
+                    </div>
+                    
+                    <div className="p-6">
+                      <h3 className="text-2xl font-bold mb-2 text-gray-800">
+                        {project.title || 'Untitled Project'}
+                      </h3>
+                      <p className="text-gray-600 mb-4">
+                        {project.location && (
+                          <span className="flex items-center gap-1">
+                            📍 {project.location}
+                          </span>
+                        )}
+                      </p>
+                      <p className="text-gray-700 mb-4">
+                        {project.description?.substring(0, 120)}
+                        {project.description?.length > 120 ? '...' : ''}
+                      </p>
+                      <div className="flex justify-between items-center text-sm border-t pt-4">
+                        <span className="text-gray-500 font-medium">
+                          {project.status || 'Status Unknown'}
                         </span>
+                        {project.budget && (
+                          <span className="text-blue-600 font-bold text-lg">
+                            ${(project.budget / 1000).toFixed(0)}K
+                          </span>
+                        )}
+                      </div>
+                      {project.area && (
+                        <p className="text-sm text-gray-500 mt-2">
+                          📐 Area: {project.area.toLocaleString()} sq ft
+                        </p>
+                      )}
+                      {project.client && (
+                        <p className="text-sm text-gray-600 mt-1">
+                          👤 Client: {project.client}
+                        </p>
                       )}
                     </div>
-                    {project.area && (
-                      <p className="text-sm text-gray-500 mt-2">
-                        📐 Area: {project.area.toLocaleString()} sq ft
-                      </p>
-                    )}
-                    {project.client && (
-                      <p className="text-sm text-gray-600 mt-1">
-                        👤 Client: {project.client}
-                      </p>
-                    )}
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                );
+              })}
             </div>
           )}
         </div>
